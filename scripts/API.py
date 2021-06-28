@@ -97,6 +97,18 @@ class InlineQueryResult:
         return data
 
 
+class File:
+    """
+        Class representing Telegram file
+    """
+
+    def __init__(self, json: Dict[str, str]) -> None:
+        self.file_id = json['file_id']
+        self.file_unique_id = json['file_unique_id']
+        self.file_size = json['file_size']
+        self.file_path = json['file_path']
+
+
 class API:
     """
         Class for working with Telegram API methods
@@ -244,5 +256,33 @@ class API:
 
         if parse_mode:
             body['parse_mode'] = parse_mode
+
+        return requests.post(url, json=body)
+
+    @staticmethod
+    def get_file(
+        file_id: str
+    ) -> File:
+        url = telegram['url'].format(telegram['token'], 'getFile')
+        body = {'file_id': file_id}
+        response = requests.post(url, json=body)
+        return File(response.json())
+
+    @staticmethod
+    def answer_inline_query(
+        inline_query_id: str,
+        results: List[InlineQueryResult],
+        cache_time: Optional[int] = None,
+        is_personal: Optional[bool] = None
+    ) -> requests.models.Response:
+        url = telegram['url'].format(telegram['token'], 'answerInlineQuery')
+        json_results = [result.get_json() for result in results]
+        body = {'inline_query_id': inline_query_id, 'results': json_results}
+
+        if cache_time:
+            body['cache_time'] = cache_time
+
+        if is_personal:
+            body['is_personal'] = is_personal
 
         return requests.post(url, json=body)
