@@ -2,7 +2,7 @@
     Scripts for working with Telegram Bot API    
 """
 
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Union
 from config import telegram
 import requests
 import random
@@ -41,6 +41,17 @@ class Keyboard:
             Function returning dictionary for parsing
         """
         return {"inline_keyboard": self.keyboard}
+
+
+class Message:
+    """
+        Class representing Telegram Message
+    """
+
+    def __init__(self, text: str, parse_mode: Optional[str], keyboard: Optional[Keyboard]) -> None:
+        self.text = text
+        self.parse_mode = parse_mode
+        self.keyboard = keyboard
 
 
 class InlineQueryResult:
@@ -117,18 +128,16 @@ class API:
     @staticmethod
     def send_message(
         chat_id: int,
-        text: str,
-        parse_mode: Optional[str] = None,
-        keyboard: Optional[Keyboard] = None
+        message: Message
     ) -> requests.models.Response:
         url = telegram['url'].format(telegram['token'], 'sendMessage')
-        body = {"chat_id": chat_id, "text": text}
+        body = {"chat_id": chat_id, "text": message.text}
 
-        if parse_mode:
-            body["parse_mode"] = parse_mode
+        if message.parse_mode:
+            body["parse_mode"] = message.parse_mode
 
-        if keyboard:
-            body.update(keyboard.get_json())
+        if message.keyboard:
+            body.update(message.keyboard.get_json())
 
         return requests.post(url, json=body)
 

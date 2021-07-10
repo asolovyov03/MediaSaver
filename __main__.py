@@ -8,7 +8,8 @@ from scripts.config import telegram
 
 app = Flask(__name__)
 
-@app.route(f"/{telegram['token']}", methods = ['GET', 'POST'])
+
+@app.route(f"/{telegram['token']}", methods=['GET', 'POST'])
 def get_updates():
     '''
         Get updates on bot
@@ -16,3 +17,7 @@ def get_updates():
 
     if request.method == "POST":
         updates = request.get_json()
+
+
+if __name__ == "__main__":
+    app.run()
